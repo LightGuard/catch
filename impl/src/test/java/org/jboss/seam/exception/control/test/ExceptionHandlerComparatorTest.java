@@ -20,11 +20,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.seam.exceptionhandling.test;
+package org.jboss.seam.exception.control.test;
 
-import org.jboss.seam.exceptionhandling.ExceptionHandler;
-import org.jboss.seam.exceptionhandling.ExceptionHandlerComparator;
-import org.jboss.seam.exceptionhandling.State;
+import org.jboss.seam.exception.control.ExceptionHandler;
+import org.jboss.seam.exception.control.ExceptionHandlerComparator;
+import org.jboss.seam.exception.control.State;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -40,9 +40,11 @@ public class ExceptionHandlerComparatorTest
    {
       NullPointerExceptionHandler nullPointerExceptionHandler = new NullPointerExceptionHandler();
       ExceptionExceptionHandler exceptionExceptionHandler = new ExceptionExceptionHandler();
-      UnsupportedOperationExceptionHandler unsupportedOperationExceptionHandler = new UnsupportedOperationExceptionHandler();
+      UnsupportedOperationExceptionHandler unsupportedOperationExceptionHandler =
+         new UnsupportedOperationExceptionHandler();
       List<? extends ExceptionHandler<? extends Exception, State>> handlerList;
-      handlerList = Arrays.asList(nullPointerExceptionHandler, exceptionExceptionHandler, unsupportedOperationExceptionHandler);
+      handlerList = Arrays.asList(nullPointerExceptionHandler, exceptionExceptionHandler,
+                                  unsupportedOperationExceptionHandler);
 
       Collections.sort(handlerList, new ExceptionHandlerComparator());
 
@@ -56,9 +58,11 @@ public class ExceptionHandlerComparatorTest
    {
       NullPointerExceptionHandler nullPointerExceptionHandler = new NullPointerExceptionHandler();
       ExceptionExceptionHandler exceptionExceptionHandler = new ExceptionExceptionHandler();
-      UnsupportedOperationExceptionHandler unsupportedOperationExceptionHandler = new UnsupportedOperationExceptionHandler();
+      UnsupportedOperationExceptionHandler unsupportedOperationExceptionHandler =
+         new UnsupportedOperationExceptionHandler();
       List<? extends ExceptionHandler<? extends Exception, State>> handlerList;
-      handlerList = Arrays.asList(unsupportedOperationExceptionHandler, exceptionExceptionHandler, nullPointerExceptionHandler);
+      handlerList = Arrays.asList(unsupportedOperationExceptionHandler, exceptionExceptionHandler,
+                                  nullPointerExceptionHandler);
 
       Collections.sort(handlerList, new ExceptionHandlerComparator());
 

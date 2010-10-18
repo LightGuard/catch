@@ -20,10 +20,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.seam.exceptionhandling;
+package org.jboss.seam.exception.control;
 
 /**
- * Implementation of the {@link HandlerChain} interface. Provides a package private method to check if the chain needs to end.
+ * Implementation of the {@link org.jboss.seam.exception.control.HandlerChain} interface. Provides a package private method to check if the chain needs to end.
  */
 public class HandlerChainImpl implements HandlerChain
 {

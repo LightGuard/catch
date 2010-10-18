@@ -19,14 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.jboss.seam.exceptionhandling.test;
+package org.jboss.seam.exception.control.test;
 
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.seam.exceptionhandling.ExceptionEvent;
-import org.jboss.seam.exceptionhandling.ExceptionHandlerExecutor;
-import org.jboss.seam.exceptionhandling.StateImpl;
+import org.jboss.seam.exception.control.ExceptionEvent;
+import org.jboss.seam.exception.control.ExceptionHandlerExecutor;
+import org.jboss.seam.exception.control.StateImpl;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -41,13 +40,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
-public class MultipleHandlerTest extends BaseExceptionHandlerTest
+public class UnwrapExceptionTest extends BaseExceptionHandlerTest
 {
    @Inject
    private UnsupportedOperationExceptionHandler unsupportedOperationExceptionHandler;
-
-   @Inject
-   private ExceptionExceptionHandler exceptionExceptionHandler;
 
    @Inject
    private NullPointerExceptionHandler nullPointerExceptionHandler;
@@ -56,19 +52,23 @@ public class MultipleHandlerTest extends BaseExceptionHandlerTest
    public static Archive<?> createTestArchive()
    {
       return ShrinkWrap.create("test.jar", JavaArchive.class)
-            .addClasses(UnsupportedOperationExceptionHandler.class, ExceptionExceptionHandler.class,
-                  ExceptionHandlerExecutor.class, NullPointerExceptionHandler.class)
-            .addManifestResource(new ByteArrayAsset(new byte[0]), ArchivePaths.create("beans.xml"));
+         .addClasses(UnsupportedOperationExceptionHandler.class,
+                     ExceptionHandlerExecutor.class, NullPointerExceptionHandler.class)
+         .addManifestResource(new ByteArrayAsset(new byte[0]), ArchivePaths.create("beans.xml"));
    }
 
    @Test
-   public void testAllValidHandlersCalled()
+   public void assertInnerExceptionHandledOnlyCalled()
    {
-      ExceptionEvent event = new ExceptionEvent(new UnsupportedOperationException(), new StateImpl(this.beanManager));
+      Exception e = new UnsupportedOperationException("test", new NullPointerException("test"));
+
+      this.nullPointerExceptionHandler.shouldCallEnd(true);
+
+      ExceptionEvent event = new ExceptionEvent(e, new StateImpl(this.beanManager));
       this.beanManager.fireEvent(event);
 
-      assertTrue(this.unsupportedOperationExceptionHandler.isHandleCalled());
-      assertTrue(this.exceptionExceptionHandler.isHandleCalled());
-      assertFalse(this.nullPointerExceptionHandler.isHandleCalled());
+      assertTrue(this.nullPointerExceptionHandler.isHandleCalled());
+      assertFalse(this.unsupportedOperationExceptionHandler.isHandleCalled());
+
    }
 }

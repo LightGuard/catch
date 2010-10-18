@@ -19,22 +19,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.exceptionhandling;
+
+package org.jboss.seam.exception.control;
 
 import javax.enterprise.inject.spi.BeanManager;
 
 /**
- * The State object is meant to provide any state that may be helpful for the developer in determining what to do with a particular
- * exception handling. It may include and application state, active processes, or other convenience methods for the {@link
- * ExceptionHandler} developer.
- * <p/>
- * For example, a servlet state may include methods to retrieve the HttpServletRequest, HttpServletResponse and possibly a
- * navigation convenience method.
+ * Basic {@link org.jboss.seam.exception.control.State} implementation.
  */
-public interface State
+public class StateImpl implements State
 {
+   private final BeanManager beanManager;
+
+   /**
+    * Constructor
+    *
+    * @param beanManager instance of {@link BeanManager}.
+    */
+   public StateImpl(BeanManager beanManager)
+   {
+      this.beanManager = beanManager;
+   }
+
    /**
     * @return current BeanManager.
     */
-   public BeanManager getBeanManager();
+   public BeanManager getBeanManager()
+   {
+      return this.beanManager;
+   }
 }

@@ -19,33 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package org.jboss.seam.exception.control;
 
-package org.jboss.seam.exceptionhandling.test;
-
-import org.jboss.seam.exceptionhandling.HandlerChain;
-import org.jboss.seam.exceptionhandling.State;
-import org.joda.time.DateTime;
-
-public class BaseExceptionHandler
+/**
+ * Registers an exception handler for a specific exception and state, this is the main entry point for using Seam's exception
+ * handling infrastructure.
+ */
+public interface ExceptionHandler<E extends Throwable, S extends State>
 {
-   protected boolean handleCalled;
-   protected boolean callEnd;
-   protected DateTime timeCalled;
-
-   public boolean isHandleCalled()
-   {
-      return this.handleCalled;
-   }
-
-   public void shouldCallEnd(boolean callEnd)
-   {
-      this.callEnd = callEnd;
-   }
-
-   public DateTime getTimeCalled()
-   {
-      return this.timeCalled;
-   }
+   /**
+    * @return the numeric priority of this handler in relationship to other handlers, 1 being top priority
+    */
+   int getPriority();
 
    /**
     * Method called to execute logic for an uncaught exception.
@@ -54,14 +39,5 @@ public class BaseExceptionHandler
     * @param state container for any useful application state
     * @param e     uncaught exception
     */
-   public void baseHandle(HandlerChain chain, State state, Throwable e)
-   {
-      this.timeCalled = new DateTime();
-      this.handleCalled = true;
-
-      if (this.callEnd)
-      {
-         chain.end();
-      }
-   }
+   void handle(HandlerChain chain, S state, E e);
 }

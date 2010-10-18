@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.seam.exceptionhandling;
+package org.jboss.seam.exception.control;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -88,6 +88,7 @@ final public class MethodParameterTypeHelper
     * Looks for the given type or super types in the exception type collection.
     *
     * @param type type (or super types of) to search for
+    *
     * @return flag indicating if the type or super types of that type are found
     */
    public boolean containsExceptionTypeOrSuperType(Class type)
@@ -99,6 +100,7 @@ final public class MethodParameterTypeHelper
     * Looks for the given type or super types in the state type collection.
     *
     * @param type type (or super types of) to search for
+    *
     * @return flag indicating if the type or super types of that type are found
     */
    public boolean containsStateTypeOrSuperType(Class type)
@@ -134,6 +136,7 @@ final public class MethodParameterTypeHelper
     *
     * @param types Collection to search
     * @param type  type (or super types of) to search for
+    *
     * @return flag indicating if the type or super types of that type are found
     */
    @SuppressWarnings("unchecked")
