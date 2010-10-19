@@ -19,12 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.seam.exception.control.impl;
-
-import org.jboss.seam.exception.control.ExceptionEvent;
-import org.jboss.seam.exception.control.ExceptionHandler;
-import org.jboss.seam.exception.control.HandlerChain;
-import org.jboss.seam.exception.control.State;
+package org.jboss.seam.exception.control;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
@@ -38,8 +33,8 @@ import java.util.List;
 import java.util.Stack;
 
 /**
- * Finds and invokes all {@link org.jboss.seam.exception.control.ExceptionHandler} instants for a particular exception and {@link org.jboss.seam.exception.control.State}. <p> If any handlers are
- * found and invoked the the {@link org.jboss.seam.exception.control.ExceptionEvent#setExceptionHandled(boolean)} is set to true. </p>
+ * Finds and invokes all {@link org.jboss.seam.exception.control.ExceptionHandler}
+ * instants for a particular exception and {@link org.jboss.seam.exception.control.State}.
  */
 public class ExceptionHandlerExecutor
 {
@@ -50,11 +45,14 @@ public class ExceptionHandlerExecutor
     * Observes the event, finds the correct exception handler(s) and invokes them.
     *
     * @param event Event Payload
+    *
+    * @throws Throwable Either the return of ExceptionEvent#getException if it was not handled, explicitly asked to be
+    *                   re-thrown from a handler, or a new exception to throw from a handler.
     */
-   @SuppressWarnings({"unchecked", "MethodWithMultipleLoops"})
-   public void executeHandlers(@Observes ExceptionEvent event)
+   @SuppressWarnings({"unchecked", "MethodWithMultipleLoops", "ThrowableResultOfMethodCallIgnored", "NestedAssignment"})
+   public void executeHandlers(@Observes ExceptionEvent event) throws Throwable
    {
-      final HandlerChain chain = new HandlerChainImpl();
+      final HandlerControl chain = new HandlerChainImpl();
       final Stack<Throwable> unwrappedExceptions = new Stack<Throwable>();
       final State state = event.getState();
       final BeanManager beanManager = state.getBeanManager();
@@ -62,36 +60,40 @@ public class ExceptionHandlerExecutor
       Throwable exception = event.getException();
       MethodParameterTypeHelper handlerMethodParameters;
 
-      //noinspection NestedAssignment
       do
       {
-         //noinspection ThrowableResultOfMethodCallIgnored
          unwrappedExceptions.push(exception);
       }
       while ((exception = exception.getCause()) != null);
 
       // Finding the correct exception handlers using reflection based on the method
       // to determine if it's the correct
-      Throwable unwrapped;
-      while (!unwrappedExceptions.isEmpty() && !((HandlerChainImpl) chain).isChainEnd())
+
+      boolean handled = false;
+      while (!unwrappedExceptions.isEmpty())
       {
-         unwrapped = unwrappedExceptions.pop();
+         final Throwable unwrapped = unwrappedExceptions.pop();
          for (ExceptionHandler handler : this.allHandlers)
          {
             handlerMethodParameters = new MethodParameterTypeHelper(handler);
 
             if (handlerMethodParameters.containsExceptionTypeOrSuperType(unwrapped.getClass())
-                  && handlerMethodParameters.containsStateTypeOrSuperType(state.getClass()))
+                && handlerMethodParameters.containsStateTypeOrSuperType(state.getClass()))
             {
-               handler.handle(chain, state, unwrapped);
-               event.setExceptionHandled(true);
+               handler.handle(chain, state, unwrapped); // TODO: This will return an object
+               handled = true;
 
-               if (((HandlerChainImpl) chain).isChainEnd())
+               if (((HandlerChainImpl) chain).isChainEnd()) // TODO: inspect and run the returned object
                {
                   break;
                }
             }
          }
+      }
+
+      if (!handled)
+      {
+         throw event.getException();
       }
    }
 
@@ -101,6 +103,7 @@ public class ExceptionHandlerExecutor
     * Method taken from Seam faces BeanManagerUtils.
     *
     * @param manager BeanManager instance
+    *
     * @return List of instantiated  found by the bean manager
     */
    @SuppressWarnings("unchecked")
@@ -110,7 +113,8 @@ public class ExceptionHandlerExecutor
       List<ExceptionHandler> result = new ArrayList<ExceptionHandler>();
       for (Bean<?> bean : manager.getBeans(ExceptionHandler.class))
       {
-         CreationalContext<ExceptionHandler> context = (CreationalContext<ExceptionHandler>) manager.createCreationalContext(
+         CreationalContext<ExceptionHandler> context =
+            (CreationalContext<ExceptionHandler>) manager.createCreationalContext(
                bean);
          if (context != null)
          {

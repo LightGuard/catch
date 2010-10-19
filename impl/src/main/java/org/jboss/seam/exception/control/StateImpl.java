@@ -20,31 +20,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.seam.exception.control.impl;
+package org.jboss.seam.exception.control;
 
-import org.jboss.seam.exception.control.HandlerChain;
+import javax.enterprise.inject.spi.BeanManager;
 
 /**
- * Implementation of the {@link org.jboss.seam.exception.control.HandlerChain} interface. Provides a package private method to check if the chain needs to end.
+ * Basic {@link org.jboss.seam.exception.control.State} implementation.
  */
-public class HandlerChainImpl implements HandlerChain
+public class StateImpl implements State
 {
-   private boolean chainEnd;
+   private final BeanManager beanManager;
 
    /**
-    * End execution of the chain. Calling this method will immediately stop executing the handler chain, leaving any handlers left
-    * in the chain as uncalled.
+    * Constructor
+    *
+    * @param beanManager instance of {@link BeanManager}.
     */
-   public void end()
+   public StateImpl(BeanManager beanManager)
    {
-      this.chainEnd = true;
+      this.beanManager = beanManager;
    }
 
    /**
-    * @return flag indicating if the chain should continue execution
+    * @return current BeanManager.
     */
-   boolean isChainEnd()
+   public BeanManager getBeanManager()
    {
-      return this.chainEnd;
+      return this.beanManager;
    }
 }

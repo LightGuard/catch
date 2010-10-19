@@ -22,13 +22,24 @@
 package org.jboss.seam.exception.control;
 
 /**
- * Provides the developer methods to affect the traversal of the chain of {@link org.jboss.seam.exception.control.ExceptionHandler} instances.
+ * Provides the methods to affect the traversal of the chain of
+ * {@link org.jboss.seam.exception.control.ExceptionHandler} instances and actions taken after the chain of handlers
+ * has executed such as transaction rollback.
  */
-public interface HandlerChain
+public interface HandlerControl
 {
    /**
-    * End execution of the chain. Calling this method will immediately stop executing the handler chain, leaving any handlers left
-    * in the chain as uncalled.
+    * Tells the chain to continue processing the remaining handlers.
     */
-   void end();
+   void proceed();
+
+   /**
+    * Instructs the current transaction to be rolled back after the chain of handlers has been processed.
+    */
+   void queueTransactionRollback();
+
+   /**
+    * Instructs the exception to be re-thrown after the chain of handlers has been processed.
+    */
+   void queueExceptionRethrow();
 }

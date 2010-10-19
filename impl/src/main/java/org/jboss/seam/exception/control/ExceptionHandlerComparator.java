@@ -20,9 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.seam.exception.control.impl;
-
-import org.jboss.seam.exception.control.ExceptionHandler;
+package org.jboss.seam.exception.control;
 
 import java.util.Comparator;
 
@@ -55,8 +53,10 @@ public final class ExceptionHandlerComparator implements Comparator<ExceptionHan
     *
     * @param lhs the first object to be compared.
     * @param rhs the second object to be compared.
+    *
     * @return a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the
     *         second.
+    *
     * @throws ClassCastException if the arguments' types prevent them from being compared by this comparator.
     */
    public int compare(ExceptionHandler lhs, ExceptionHandler rhs)
