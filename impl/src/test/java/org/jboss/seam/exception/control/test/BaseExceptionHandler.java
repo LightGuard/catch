@@ -22,7 +22,8 @@
 
 package org.jboss.seam.exception.control.test;
 
-import org.jboss.seam.exception.control.HandlerChain;
+import org.jboss.seam.exception.control.ExceptionHandlerOutcome;
+import org.jboss.seam.exception.control.Outcome;
 import org.jboss.seam.exception.control.State;
 import org.joda.time.DateTime;
 
@@ -50,18 +51,19 @@ public class BaseExceptionHandler
    /**
     * Method called to execute logic for an uncaught exception.
     *
-    * @param chain Chain object used to continue handling chain
     * @param state container for any useful application state
     * @param e     uncaught exception
     */
-   public void baseHandle(HandlerChain chain, State state, Throwable e)
+   public ExceptionHandlerOutcome baseHandle(State state, Throwable e)
    {
       this.timeCalled = new DateTime();
       this.handleCalled = true;
 
       if (this.callEnd)
       {
-         chain.end();
+         return new ExceptionHandlerOutcome(Outcome.ABORT);
       }
+
+      return null;
    }
 }

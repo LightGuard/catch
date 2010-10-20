@@ -23,19 +23,23 @@
 package org.jboss.seam.exception.control;
 
 /**
- * Payload for an exception to be handled.
+ * Payload for an exception to be handled.  This object is immutable, and thus thread-safe.
  */
 public class ExceptionEvent
 {
    private final State state;
    private final Throwable exception;
-   private boolean exceptionHandled;
 
+   /**
+    * Single constructor. Initializes the object using the given throwable and state, other properties are default.
+    *
+    * @param exception Throwable that this event is for.
+    * @param state     State object available for additional handling.
+    */
    public ExceptionEvent(Throwable exception, State state)
    {
       this.exception = exception;
       this.state = state;
-      this.exceptionHandled = false;
    }
 
    /**
@@ -52,23 +56,5 @@ public class ExceptionEvent
    public State getState()
    {
       return state;
-   }
-
-   /**
-    * @return flag indicating the exception has been handled.
-    */
-   public boolean isExceptionHandled()
-   {
-      return exceptionHandled;
-   }
-
-   /**
-    * This should be set if the exception has been handled in an event observer or handler.
-    *
-    * @param exceptionHandled new value
-    */
-   public void setExceptionHandled(boolean exceptionHandled)
-   {
-      this.exceptionHandled = exceptionHandled;
    }
 }

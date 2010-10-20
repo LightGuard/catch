@@ -23,13 +23,15 @@
 package org.jboss.seam.exception.control.test;
 
 import org.jboss.seam.exception.control.ExceptionHandler;
-import org.jboss.seam.exception.control.HandlerChain;
+import org.jboss.seam.exception.control.ExceptionHandlerOutcome;
+import org.jboss.seam.exception.control.Outcome;
 import org.jboss.seam.exception.control.State;
 
 import javax.enterprise.context.RequestScoped;
 
 @RequestScoped
-public class UnsupportedOperationExceptionHandler extends BaseExceptionHandler implements ExceptionHandler<UnsupportedOperationException, State>
+public class UnsupportedOperationExceptionHandler extends BaseExceptionHandler
+   implements ExceptionHandler<UnsupportedOperationException, State>
 {
 
    /**
@@ -43,12 +45,12 @@ public class UnsupportedOperationExceptionHandler extends BaseExceptionHandler i
    /**
     * Method called to execute logic for an uncaught exception.
     *
-    * @param chain Chain object used to continue handling chain
     * @param state container for any useful application state
     * @param e     uncaught exception
     */
-   public void handle(HandlerChain chain, State state, UnsupportedOperationException e)
+   public ExceptionHandlerOutcome handle(State state, UnsupportedOperationException e)
    {
-      super.baseHandle(chain, state, e);
+      ExceptionHandlerOutcome superOutcome = super.baseHandle(state, e);
+      return (superOutcome == null) ? new ExceptionHandlerOutcome(Outcome.CONTINUE) : superOutcome;
    }
 }

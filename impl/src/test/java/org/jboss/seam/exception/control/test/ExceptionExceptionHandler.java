@@ -23,7 +23,8 @@
 package org.jboss.seam.exception.control.test;
 
 import org.jboss.seam.exception.control.ExceptionHandler;
-import org.jboss.seam.exception.control.HandlerChain;
+import org.jboss.seam.exception.control.ExceptionHandlerOutcome;
+import org.jboss.seam.exception.control.Outcome;
 import org.jboss.seam.exception.control.State;
 
 import javax.enterprise.context.RequestScoped;
@@ -42,12 +43,12 @@ public class ExceptionExceptionHandler extends BaseExceptionHandler implements E
    /**
     * Method called to execute logic for an uncaught exception.
     *
-    * @param chain Chain object used to continue handling chain
     * @param state container for any useful application state
     * @param e     uncaught exception
     */
-   public void handle(HandlerChain chain, State state, Exception e)
+   public ExceptionHandlerOutcome handle(State state, Exception e)
    {
-      super.baseHandle(chain, state, e);
+      ExceptionHandlerOutcome superOutcome = super.baseHandle(state, e);
+      return (superOutcome == null) ? new ExceptionHandlerOutcome(Outcome.CONTINUE) : superOutcome;
    }
 }

@@ -52,7 +52,6 @@ public class ExceptionHandlerExecutor
    @SuppressWarnings({"unchecked", "MethodWithMultipleLoops", "ThrowableResultOfMethodCallIgnored", "NestedAssignment"})
    public void executeHandlers(@Observes ExceptionEvent event) throws Throwable
    {
-      final HandlerControl chain = new HandlerChainImpl();
       final Stack<Throwable> unwrappedExceptions = new Stack<Throwable>();
       final State state = event.getState();
       final BeanManager beanManager = state.getBeanManager();
@@ -70,7 +69,8 @@ public class ExceptionHandlerExecutor
       // to determine if it's the correct
 
       boolean handled = false;
-      while (!unwrappedExceptions.isEmpty())
+      boolean abortProccessing = false;
+      while (!unwrappedExceptions.isEmpty() && !abortProccessing)
       {
          final Throwable unwrapped = unwrappedExceptions.pop();
          for (ExceptionHandler handler : this.allHandlers)
@@ -80,11 +80,30 @@ public class ExceptionHandlerExecutor
             if (handlerMethodParameters.containsExceptionTypeOrSuperType(unwrapped.getClass())
                 && handlerMethodParameters.containsStateTypeOrSuperType(state.getClass()))
             {
-               handler.handle(chain, state, unwrapped); // TODO: This will return an object
+               ExceptionHandlerOutcome outcome = handler.handle(state, unwrapped);
                handled = true;
 
-               if (((HandlerChainImpl) chain).isChainEnd()) // TODO: inspect and run the returned object
+
+               if (outcome.isRollback())
                {
+                  // TODO: Figure out rollback
+               }
+
+               if (outcome.isThrow())
+               {
+                  Throwable rethrowable = outcome.getException();
+
+                  if (rethrowable == null)
+                  {
+                     rethrowable = unwrapped;
+                  }
+
+                  throw rethrowable;
+               }
+
+               if (outcome.isAbort())
+               {
+                  abortProccessing = true;
                   break;
                }
             }
@@ -98,7 +117,8 @@ public class ExceptionHandlerExecutor
    }
 
    /**
-    * Finds all instances of {@link org.jboss.seam.exception.control.ExceptionHandler} and creates contextual instances for use.
+    * Finds all instances of {@link org.jboss.seam.exception.control.ExceptionHandler} and creates contextual
+    * instances for use.
     * <p/>
     * Method taken from Seam faces BeanManagerUtils.
     *

@@ -51,8 +51,8 @@ final public class MethodParameterTypeHelper
       {
          if ("handle".equals(m.getName()))
          {
-            this.stateTypes.add(m.getParameterTypes()[1]);
-            this.exceptionTypes.add(m.getParameterTypes()[2]);
+            this.stateTypes.add(m.getParameterTypes()[0]);
+            this.exceptionTypes.add(m.getParameterTypes()[1]);
          }
       }
 
