@@ -25,19 +25,12 @@ package org.jboss.seam.exception.control;
  * Registers an exception handler for a specific exception and state, this is the main entry point for using Seam's exception
  * handling infrastructure.
  */
-public interface ExceptionHandler<E extends Throwable, S extends State>
+public interface ExceptionHandler<T extends Throwable>
 {
-   /**
-    * @return the numeric priority of this handler in relationship to other handlers, 1 being top priority
-    */
-   int getPriority();
-
    /**
     * Method called to execute logic for an uncaught exception.
     *
-    * @param chain Chain object used to continue handling chain
-    * @param state container for any useful application state
     * @param e     uncaught exception
     */
-   void handle(HandlerChain chain, S state, E e);
+   void handle(T e);
 }
