@@ -27,16 +27,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-// TODO needs generic parameters to the effect of <T extends Throwable> and <H extends ExceptionHandler<? super T>>
-public class ExceptionHandlerChain<T extends Throwable, H extends ExceptionHandler<? super T>>
+public class ExceptionHandlerChain<T extends Throwable>
 {
-   private List<H> handlers;
+   private ArrayList<Class<ExceptionHandler<? super T>>> handlers;
 
    private List<ExceptionHandlerActivation> activations = new ArrayList<ExceptionHandlerActivation>();
 
-   public ExceptionHandlerChain(H ... handlers)
+   public ExceptionHandlerChain(Class<ExceptionHandler<? super T>>... handlers)
    {
-      this.handlers = new ArrayList<H>(Arrays.<? extends H>asList(handlers));
+      this.handlers = new ArrayList<Class<ExceptionHandler<? super T>>>(Arrays.asList(handlers));
    }
 
    public void addAll(ExceptionHandlerActivation... activations)
@@ -56,13 +55,13 @@ public class ExceptionHandlerChain<T extends Throwable, H extends ExceptionHandl
       return true;
    }
 
-   public List<H> getExceptionHandlers()
+   public List<Class<ExceptionHandler<? super T>>> getExceptionHandlers()
    {
-      return Collections.unmodifiableList(handlers);
+      return Collections.unmodifiableList(this.handlers);
    }
 
    public List<ExceptionHandlerActivation> getActivations()
    {
-      return Collections.unmodifiableList(activations);
+      return Collections.unmodifiableList(this.activations);
    }
 }

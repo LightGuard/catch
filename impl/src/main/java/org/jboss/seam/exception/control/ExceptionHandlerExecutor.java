@@ -21,12 +21,15 @@
  */
 package org.jboss.seam.exception.control;
 
+import org.jboss.seam.exception.control.config.CatchConfig;
+import org.jboss.seam.exception.control.config.ExceptionTypeConfig;
+
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,39 +41,66 @@ import java.util.Stack;
  */
 public class ExceptionHandlerExecutor
 {
-   @Inject
-   private List<ExceptionHandler> allHandlers;
-
    /**
     * Observes the event, finds the correct exception handler(s) and invokes them.
     *
-    * @param event Event Payload
+    * @param handlingException
+    * @param config
+    * @param beanManager
     */
-   @SuppressWarnings({"unchecked", "MethodWithMultipleLoops"})
-   public void executeHandlers(@Observes ExceptionEvent event)
+   @SuppressWarnings({"unchecked", "MethodWithMultipleLoops", "NestedAssignment", "ThrowableResultOfMethodCallIgnored"})
+   public void executeHandlers(@Observes @Any final Throwable handlingException, final CatchConfig config,
+                               final BeanManager beanManager)
    {
-      final HandlerChain chain = new HandlerChainImpl();
       final Stack<Throwable> unwrappedExceptions = new Stack<Throwable>();
-      final State state = event.getState();
-      final BeanManager beanManager = state.getBeanManager();
+      Throwable currentException = handlingException;
 
-      Throwable exception = event.getException();
       MethodParameterTypeHelper handlerMethodParameters;
 
-      //noinspection NestedAssignment
       do
       {
-         //noinspection ThrowableResultOfMethodCallIgnored
-         unwrappedExceptions.push(exception);
+         unwrappedExceptions.push(currentException);
       }
-      while ((exception = exception.getCause()) != null);
+      while ((currentException = currentException.getCause()) != null);
 
       // Finding the correct exception handlers using reflection based on the method
       // to determine if it's the correct
-      Throwable unwrapped;
-      while (!unwrappedExceptions.isEmpty() && !((HandlerChainImpl) chain).isChainEnd())
+      while (!unwrappedExceptions.isEmpty())
       {
-         unwrapped = unwrappedExceptions.pop();
+         currentException = unwrappedExceptions.pop();
+
+         for (ExceptionHandlerChain chain : config.getRegistry().getExceptionHandlerChainsFor(currentException))
+         {
+            if (chain.isActive(currentException))
+            {
+               for (Object h : chain.getExceptionHandlers()) // complete generic fail
+               {
+                  ExceptionHandler handler = null;
+                  try
+                  {
+                     handler = (ExceptionHandler) ((Class) h).newInstance();
+
+                     if (handler instanceof ConfigurableExceptionHandler)
+                     {
+                        ((ConfigurableExceptionHandler) handler).initialize();
+                     }
+                  }
+                  catch (InstantiationException e)
+                  {
+                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                  }
+                  catch (IllegalAccessException e)
+                  {
+                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                  }
+
+                  if (handler instanceof ExceptionTypeConfig)
+                  {
+
+                  }
+               }
+            }
+         }
          for (ExceptionHandler handler : this.allHandlers)
          {
             handlerMethodParameters = new MethodParameterTypeHelper(handler);

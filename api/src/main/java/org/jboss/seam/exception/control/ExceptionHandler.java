@@ -30,7 +30,9 @@ public interface ExceptionHandler<T extends Throwable>
    /**
     * Method called to execute logic for an uncaught exception.
     *
-    * @param e     uncaught exception
+    * @param e uncaught exception
+    *
+    * @return
     */
-   void handle(T e);
+   ExceptionHandlingDirective handle(T e);
 }

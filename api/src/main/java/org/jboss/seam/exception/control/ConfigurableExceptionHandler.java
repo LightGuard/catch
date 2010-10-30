@@ -20,43 +20,12 @@
  *  02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.seam.exception.control.config;
+package org.jboss.seam.exception.control;
 
-import javax.enterprise.inject.Typed;
+import org.jboss.seam.exception.control.config.ExceptionTypeConfig;
 
-/**
- * @author Jason Porter <lightguard.jp@gmail.com>
- * @author Dan Allen
- */
-@Typed()
-public class CatchConfig
+public interface ConfigurableExceptionHandler<T extends Throwable, C extends ExceptionTypeConfig>
+   extends ExceptionHandler<T>
 {
-   protected final ExceptionHandlerRegistry registry;
-
-   public CatchConfig()
-   {
-      registry = new ExceptionHandlerRegistry();
-   }
-
-   public CatchConfig(ExceptionHandlerRegistry mapping)
-   {
-      this.registry = mapping;
-   }
-
-   // TODO support exact match (strict) vs type + super types
-
-   public <T extends Throwable> ExceptionTypeConfig<T> onCatching(Class<T> type)
-   {
-      return new ExceptionTypeConfig<T>(registry, type);
-   }
-
-   public ExceptionTypeConfig<Throwable> onCatchingAnyException()
-   {
-      return new ExceptionTypeConfig<Throwable>(registry);
-   }
-
-   public ExceptionHandlerRegistry getRegistry()
-   {
-      return registry;
-   }
+   void initialize(C configuration);
 }

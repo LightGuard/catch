@@ -25,16 +25,16 @@ package org.jboss.seam.exception.control.config;
 import org.jboss.seam.exception.control.ExceptionHandler;
 import org.jboss.seam.exception.control.ExceptionHandlerChain;
 
-public class ExceptionConfig<T extends Throwable> extends CatchConfig
+public class ExceptionTypeConfig<T extends Throwable> extends CatchConfig
 {
    protected final Class<T> exceptionType;
 
-   public ExceptionConfig(ExceptionHandlerRegistry registry)
+   public ExceptionTypeConfig(ExceptionHandlerRegistry registry)
    {
       this(registry, null);
    }
 
-   public ExceptionConfig(ExceptionHandlerRegistry registry, Class<T> exceptionType)
+   public ExceptionTypeConfig(ExceptionHandlerRegistry registry, Class<T> exceptionType)
    {
       super(registry);
       this.exceptionType = exceptionType;
@@ -42,9 +42,9 @@ public class ExceptionConfig<T extends Throwable> extends CatchConfig
 
    // using ? super T here causes a warning to appear about casting a vararg array to a generic array
    // however, it does provide us safety against using handlers that aren't parameterized to the exception hierarchy
-   public <H extends ExceptionHandler<? super T>> ExceptionHandlerChainConfig<T> handleWith(H... handler)
+   public ExceptionHandlerChainDef<T> handleWith(Class<ExceptionHandler<? super T>> handler)
    {
-      ExceptionHandlerChain<T, H> chain = new ExceptionHandlerChain<T, H>(handler);
+      ExceptionHandlerChain<T> chain = new ExceptionHandlerChain<T>(handler);
       if (exceptionType != null)
       {
          registry.addChainForExceptionType(exceptionType, chain);
@@ -54,6 +54,6 @@ public class ExceptionConfig<T extends Throwable> extends CatchConfig
          registry.addGlobalChain(chain);
       }
 
-      return new ExceptionHandlerChainConfig<T>(this, chain);
+      return new ExceptionHandlerChainDef<T>(this, chain);
    }
 }
